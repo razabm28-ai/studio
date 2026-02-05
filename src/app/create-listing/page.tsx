@@ -25,6 +25,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Camera } from "lucide-react";
+import { useUser, useFirestore, addDocumentNonBlocking, useMemoFirebase } from "@/firebase";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { collection, serverTimestamp } from "firebase/firestore";
+
 
 const formSchema = z.object({
   model: z.string().min(3, "Model name must be at least 3 characters."),
@@ -35,6 +40,9 @@ const formSchema = z.object({
 
 export default function CreateListingPage() {
   const { toast } = useToast();
+  const { user, isUserLoading } = useUser();
+  const firestore = useFirestore();
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -46,13 +54,53 @@ export default function CreateListingPage() {
     },
   });
 
+  useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.replace("/login?from=/create-listing");
+    }
+  }, [user, isUserLoading, router]);
+
+
+  const phoneListingsCollection = useMemoFirebase(
+    () => user && firestore ? collection(firestore, 'users', user.uid, 'phoneListings') : null,
+    [firestore, user]
+  );
+
+
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    if (!user || !phoneListingsCollection) {
+        toast({
+            variant: "destructive",
+            title: "Authentication Error",
+            description: "You must be logged in to create a listing.",
+        });
+        return;
+    }
+      
+    const newListing = {
+        ...values,
+        userId: user.uid,
+        postDate: serverTimestamp(),
+        imageUrls: [], // Placeholder for now
+    };
+
+    addDocumentNonBlocking(phoneListingsCollection, newListing);
+    
     toast({
       title: "Listing Created!",
       description: `Your ad for the ${values.model} has been posted.`,
     });
     form.reset();
+  }
+
+  if (isUserLoading || !user) {
+    return (
+        <div className="flex justify-center items-center h-screen">
+            <div className="text-center">
+                <p>Loading...</p>
+            </div>
+        </div>
+    );
   }
 
   return (

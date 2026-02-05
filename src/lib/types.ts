@@ -1,5 +1,6 @@
 export type PhoneListing = {
   id: string;
+  userId?: string;
   model: string;
   description: string;
   price: number;

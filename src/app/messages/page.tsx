@@ -1,7 +1,6 @@
-
 "use client"
 
-import { Suspense, useState, useMemo } from 'react';
+import { Suspense, useState, useMemo, useEffect } from 'react';
 import Image from 'next/image';
 import { conversations as mockConversations } from '@/lib/data';
 import type { Conversation } from '@/lib/types';
@@ -14,7 +13,8 @@ import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { Send, ArrowLeft } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useUser } from '@/firebase';
 
 function ConversationList({ conversations, onSelect, selectedId }: { conversations: Conversation[], onSelect: (id: string) => void, selectedId: string | null }) {
   return (
@@ -156,6 +156,24 @@ function MessagesContent() {
 }
 
 export default function MessagesPage() {
+    const { user, isUserLoading } = useUser();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!isUserLoading && !user) {
+            router.replace('/login?from=/messages');
+        }
+    }, [user, isUserLoading, router]);
+
+    if (isUserLoading || !user) {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <div className="text-center">
+                    <p>Loading...</p>
+                </div>
+            </div>
+        );
+    }
     return (
         <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
             <div className="mb-8">
