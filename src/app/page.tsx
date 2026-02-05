@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Listings from '@/components/listings';
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Home as HomeIcon, Smartphone, Cpu, Car, Bike, Camera, Laptop, Monitor } from 'lucide-react';
+import { Home as HomeIcon, Smartphone, Cpu, Car, Bike, Camera, Laptop, Monitor, PlusCircle } from 'lucide-react';
 import Link from 'next/link';
 
 function ListingsSkeleton() {
@@ -31,6 +31,7 @@ const categories = [
     { name: 'Laptop', icon: <Laptop className="w-6 h-6 text-primary" />, href: '#' },
     { name: 'DSLR', icon: <Camera className="w-6 h-6 text-primary" />, href: '#' },
     { name: 'Computer', icon: <Monitor className="w-6 h-6 text-primary" />, href: '#' },
+    { name: 'Sell', icon: <PlusCircle className="w-6 h-6 text-primary" />, href: '/create-listing' },
 ];
 
 
