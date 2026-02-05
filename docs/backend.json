@@ -1,0 +1,336 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the PhoneSwap application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user entity."
+        },
+        "username": {
+          "type": "string",
+          "description": "The username of the user."
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address of the user.",
+          "format": "email"
+        },
+        "firstName": {
+          "type": "string",
+          "description": "The first name of the user."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The last name of the user."
+        },
+        "registrationDate": {
+          "type": "string",
+          "description": "The date and time the user registered.",
+          "format": "date-time"
+        },
+        "lastLogin": {
+          "type": "string",
+          "description": "The date and time the user last logged in.",
+          "format": "date-time"
+        },
+        "profilePicture": {
+          "type": "string",
+          "description": "URL of the user's profile picture.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "id",
+        "username",
+        "email",
+        "firstName",
+        "lastName",
+        "registrationDate"
+      ]
+    },
+    "PhoneListing": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "PhoneListing",
+      "type": "object",
+      "description": "Represents a phone listing posted by a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the phone listing entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N PhoneListing)"
+        },
+        "title": {
+          "type": "string",
+          "description": "The title of the phone listing."
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the phone being listed."
+        },
+        "model": {
+          "type": "string",
+          "description": "The model of the phone."
+        },
+        "price": {
+          "type": "number",
+          "description": "The price of the phone being listed."
+        },
+        "condition": {
+          "type": "string",
+          "description": "The condition of the phone (e.g., new, used, refurbished)."
+        },
+        "postDate": {
+          "type": "string",
+          "description": "The date and time the listing was posted.",
+          "format": "date-time"
+        },
+        "imageUrls": {
+          "type": "array",
+          "description": "URLs of images of the phone.",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "title",
+        "description",
+        "model",
+        "price",
+        "condition",
+        "postDate",
+        "imageUrls"
+      ]
+    },
+    "Message": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Message",
+      "type": "object",
+      "description": "Represents a direct message between two users.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the message entity."
+        },
+        "senderId": {
+          "type": "string",
+          "description": "Reference to User who sent the message. (Relationship: User 1:N Message)"
+        },
+        "receiverId": {
+          "type": "string",
+          "description": "Reference to User who received the message. (Relationship: User 1:N Message)"
+        },
+        "content": {
+          "type": "string",
+          "description": "The content of the message."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "The date and time the message was sent.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "senderId",
+        "receiverId",
+        "content",
+        "timestamp"
+      ]
+    },
+    "SearchFilter": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "SearchFilter",
+      "type": "object",
+      "description": "Represents search filters used by users.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the search filter entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User who created the filter. (Relationship: User 1:N SearchFilter)"
+        },
+        "model": {
+          "type": "string",
+          "description": "The phone model to filter by."
+        },
+        "minPrice": {
+          "type": "number",
+          "description": "The minimum price to filter by."
+        },
+        "maxPrice": {
+          "type": "number",
+          "description": "The maximum price to filter by."
+        },
+        "condition": {
+          "type": "string",
+          "description": "The phone condition to filter by."
+        },
+        "createdDate": {
+          "type": "string",
+          "description": "The date and time the filter was created.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "createdDate"
+      ]
+    },
+    "Recommendation": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Recommendation",
+      "type": "object",
+      "description": "Represents a listing recommendation for a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the recommendation entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User who the listing is recommended to. (Relationship: User 1:N Recommendation)"
+        },
+        "listingId": {
+          "type": "string",
+          "description": "Reference to PhoneListing that is being recommended. (Relationship: PhoneListing 1:N Recommendation)"
+        },
+        "recommendationDate": {
+          "type": "string",
+          "description": "The date and time the listing was recommended.",
+          "format": "date-time"
+        },
+        "reason": {
+          "type": "string",
+          "description": "The reason for recommending this listing to the user."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "listingId",
+        "recommendationDate",
+        "reason"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profiles. Path-based ownership for simplified security rules.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/phoneListings/{phoneListingId}",
+        "definition": {
+          "entityName": "PhoneListing",
+          "schema": {
+            "$ref": "#/backend/entities/PhoneListing"
+          },
+          "description": "Stores phone listings created by users. Path-based ownership to ensure only the user can manage their listings.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "phoneListingId",
+              "description": "The unique identifier of the phone listing."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/messages/{messageId}",
+        "definition": {
+          "entityName": "Message",
+          "schema": {
+            "$ref": "#/backend/entities/Message"
+          },
+          "description": "Stores messages sent or received by users. Path-based ownership for access control.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user (either sender or receiver)."
+            },
+            {
+              "name": "messageId",
+              "description": "The unique identifier of the message."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/searchFilters/{searchFilterId}",
+        "definition": {
+          "entityName": "SearchFilter",
+          "schema": {
+            "$ref": "#/backend/entities/SearchFilter"
+          },
+          "description": "Stores search filters created by users. Path-based ownership to ensure only the user can manage their filters.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "searchFilterId",
+              "description": "The unique identifier of the search filter."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/recommendations/{recommendationId}",
+        "definition": {
+          "entityName": "Recommendation",
+          "schema": {
+            "$ref": "#/backend/entities/Recommendation"
+          },
+          "description": "Stores listing recommendations for users. Path-based ownership for user-specific recommendations.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "recommendationId",
+              "description": "The unique identifier of the recommendation."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to support the PhoneSwap application's core features, emphasizing security, scalability, and ease of maintenance. It prioritizes authorization independence by denormalizing relevant authorization data, avoiding the need for `get()` calls in security rules. \n\n*   **Users (Private Data):** User data is stored under `/users/{userId}`, providing path-based ownership and clear access control. This segregation allows rules to easily validate that only the user can access their own data.\n*   **Phone Listings (User-Owned):** Phone listings are stored under `/users/{userId}/phoneListings/{phoneListingId}`, establishing a clear ownership hierarchy. This structure facilitates simple security rules based on the user ID.\n*   **Messages (User-Owned):** Messages are stored under `/users/{userId}/messages/{messageId}`, also following the path-based ownership pattern.  This makes it straightforward to ensure that only the sender or receiver can access a given message.\n*   **Search Filters (User-Owned):** Search filters are stored under `/users/{userId}/searchFilters/{searchFilterId}`, maintaining the consistent ownership model.\n*   **Recommendations (User-Owned):** Recommendations are stored under `/users/{userId}/recommendations/{recommendationId}`.  This enables personalized recommendation lists for each user.\n\nThis structure achieves Authorization Independence by avoiding hierarchical authorization dependencies.  Each document's access control is determined solely by its path and the user's authentication status (`request.auth.uid`), eliminating the need for `get()` calls in security rules and supporting atomic operations.\n\nIt supports the required QAPs (Rules are not Filters) through structural segregation. The separation of user-owned data into distinct collections under `/users/{userId}` allows for secure `list` operations, as rules can easily filter based on the user ID without compromising security."
+  }
+}

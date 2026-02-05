@@ -1,0 +1,194 @@
+/**
+ * Core Philosophy: This ruleset enforces a strict user-ownership model. All data is
+ * considered private and is nested within a user-specific data tree. Access is
+ * granted exclusively to the authenticated user whose ID matches the user ID in the
+ * document path, ensuring strong data isolation between users.
+ *
+ * Data Structure: All application data is organized under the top-level `/users`
+ * collection. Each user has a root document at `/users/{userId}`, with all of their
+ * related data (listings, messages, etc.) stored in subcollections beneath it.
+ * This structure is fundamental to the security model.
+ *
+ * Key Security Decisions:
+ * - Default Deny: All paths are closed by default. Access is only granted by explicit `allow` statements.
+ * - No User Listing: It is not possible for any client, authenticated or not, to list all user documents in the `/users` collection.
+ * - Strict Ownership: A user can only access, modify, or delete data that exists under their own `/users/{userId}` path.
+ * - No Public Data: There are no publicly readable collections. All reads require authentication and ownership verification.
+ *
+ * Denormalization for Authorization: The security model relies on path-based
+ * authorization. By placing a user's ID directly in the document path (e.g.,
+ * `/users/{userId}/...`), we avoid slow and costly `get()` calls to other documents
+ * for verification. This makes the rules fast, scalable, and secure. We also enforce
+ * that documents contain a `userId` field that matches the path, ensuring relational
+ * integrity is maintained from the moment of creation.
+ *
+ * Structural Segregation: The entire data model is built on structural segregation.
+ * By nesting all user-specific data in subcollections under `/users/{userId}`, we
+ * guarantee that queries (`list` operations) are naturally and securely scoped. A
+ * client can only query collections within their own data tree, preventing any
+ * possibility of data leakage from other users.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ------------------------------------------------------------------------
+    // Helper Functions
+    // ------------------------------------------------------------------------
+
+    /**
+     * Returns true if the user is signed in.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * Returns true if the signed-in user's UID matches the provided userId.
+     * This is the primary function for verifying document ownership.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * Returns true if a document exists and the user is the owner.
+     * CRITICAL: Used for all update and delete operations to prevent modifying
+     * or deleting non-existent documents.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    /**
+     * Validates required relational fields for a new User document.
+     * Ensures the document ID in the data matches the path parameter.
+     */
+    function hasValidUserDataOnCreate(userId) {
+      return request.resource.data.id == userId;
+    }
+
+    /**
+     * Enforces immutability of the user's ID field on update.
+     * Prevents re-assigning ownership of a user document.
+     */
+    function isUserDataImmutable() {
+      return request.resource.data.id == resource.data.id;
+    }
+    
+    /**
+     * Validates that the user ID in a subcollection document's data
+     * matches the user ID from the document path on creation.
+     */
+    function hasValidOwnerFieldOnCreate(userId) {
+      return request.resource.data.userId == userId;
+    }
+    
+    /**
+     * Enforces immutability of the ownership field (`userId`) on update.
+     * Prevents re-assigning a document to a different user.
+     */
+    function isOwnerFieldImmutable() {
+      return request.resource.data.userId == resource.data.userId;
+    }
+
+    /**
+     * For a new Message, validates that the user in the path ({userId}) is
+     * either the sender or the receiver of the message. This ensures the message
+     * is correctly filed under a participant's data tree.
+     */
+    function isMessageParticipantOnCreate(userId) {
+        let data = request.resource.data;
+        return data.senderId == userId || data.receiverId == userId;
+    }
+
+    /**
+     * Enforces immutability of message participants on update.
+     */
+    function areMessageParticipantsImmutable() {
+        return request.resource.data.senderId == resource.data.senderId
+            && request.resource.data.receiverId == resource.data.receiverId;
+    }
+
+    // ------------------------------------------------------------------------
+    // Collection Rules
+    // ------------------------------------------------------------------------
+
+    /**
+     * @description Manages user profile documents.
+     * @path /users/{userId}
+     * @allow (create) A new user creating their own profile document for the first time.
+     * @allow (get, update, delete) The authenticated owner accessing or modifying their own profile.
+     * @deny (list) Any user, authenticated or not, from listing all user profiles.
+     * @deny (get) An authenticated user attempting to read another user's profile.
+     * @principle Enforces self-creation and strict ownership of a user's root document.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && hasValidUserDataOnCreate(userId);
+      allow update: if isExistingOwner(userId) && isUserDataImmutable();
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Manages phone listings created by a user.
+     * @path /users/{userId}/phoneListings/{phoneListingId}
+     * @allow (create) An authenticated user creating a new phone listing for themselves.
+     * @allow (get, list, update, delete) The owner managing their own collection of listings.
+     * @deny (create, update, delete) A user attempting to modify another user's listings.
+     * @principle Restricts all access to a user's own private subcollection.
+     */
+    match /users/{userId}/phoneListings/{phoneListingId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && hasValidOwnerFieldOnCreate(userId);
+      allow update: if isExistingOwner(userId) && isOwnerFieldImmutable();
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Manages messages sent or received by a user.
+     * @path /users/{userId}/messages/{messageId}
+     * @allow (create) An authenticated user creating a message where they are the sender or receiver.
+     * @allow (get, list, update, delete) A user managing messages in their own message collection.
+     * @deny (get) A user attempting to read a message from another user's collection, even if they are a participant.
+     * @principle Restricts access to a user's copy of a message. Application logic must duplicate messages for both sender and receiver.
+     */
+    match /users/{userId}/messages/{messageId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && isMessageParticipantOnCreate(userId);
+      allow update: if isExistingOwner(userId) && areMessageParticipantsImmutable();
+      allow delete: if isExistingOwner(userId);
+    }
+    
+    /**
+     * @description Manages search filters saved by a user.
+     * @path /users/{userId}/searchFilters/{searchFilterId}
+     * @allow (create) An authenticated user saving a new search filter.
+     * @allow (get, list, update, delete) The owner managing their own saved filters.
+     * @deny (list) A user trying to see another user's saved filters.
+     * @principle Restricts all access to a user's own private subcollection.
+     */
+    match /users/{userId}/searchFilters/{searchFilterId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && hasValidOwnerFieldOnCreate(userId);
+      allow update: if isExistingOwner(userId) && isOwnerFieldImmutable();
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Manages listing recommendations generated for a user.
+     * @path /users/{userId}/recommendations/{recommendationId}
+     * @allow (get, list, delete) A user accessing or deleting recommendations from their own feed.
+     * @deny (create, update) Recommendations are likely system-generated, so clients cannot create or update them.
+     * @deny (get) A user trying to see recommendations generated for another user.
+     * @principle Restricts read access to a user's own private data, while writes are locked down.
+     */
+    match /users/{userId}/recommendations/{recommendationId} {
+      allow get, list: if isOwner(userId);
+      allow create: if false; // Assume recommendations are created by a backend process
+      allow update: if false; // Recommendations should be immutable for the user
+      allow delete: if isExistingOwner(userId);
+    }
+  }
+}
