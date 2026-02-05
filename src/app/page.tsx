@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Listings from '@/components/listings';
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Home as HomeIcon, Smartphone, Cpu, Car, Bike, Camera, Laptop, Monitor, PlusCircle } from 'lucide-react';
+import { Smartphone, Cpu, Car, Bike, PlusCircle, Briefcase, Building2, Sofa, Shirt, BookOpen, Dog, Wrench } from 'lucide-react';
 import Link from 'next/link';
 
 function ListingsSkeleton() {
@@ -23,15 +23,17 @@ function ListingsSkeleton() {
 }
 
 const categories = [
-    { name: 'Home', icon: <HomeIcon className="w-6 h-6 text-primary" />, href: '#' },
-    { name: 'Mobile', icon: <Smartphone className="w-6 h-6 text-primary" />, href: '/create-listing' },
+    { name: 'Mobiles', icon: <Smartphone className="w-6 h-6 text-primary" />, href: '/create-listing' },
     { name: 'Electronics', icon: <Cpu className="w-6 h-6 text-primary" />, href: '#' },
     { name: 'Cars', icon: <Car className="w-6 h-6 text-primary" />, href: '#' },
     { name: 'Bikes', icon: <Bike className="w-6 h-6 text-primary" />, href: '#' },
-    { name: 'Camera', icon: <Camera className="w-6 h-6 text-primary" />, href: '#' },
-    { name: 'Laptop', icon: <Laptop className="w-6 h-6 text-primary" />, href: '#' },
-    { name: 'DSLR', icon: <Camera className="w-6 h-6 text-primary" />, href: '#' },
-    { name: 'Computer', icon: <Monitor className="w-6 h-6 text-primary" />, href: '#' },
+    { name: 'Furniture', icon: <Sofa className="w-6 h-6 text-primary" />, href: '#' },
+    { name: 'Jobs', icon: <Briefcase className="w-6 h-6 text-primary" />, href: '#' },
+    { name: 'Property', icon: <Building2 className="w-6 h-6 text-primary" />, href: '#' },
+    { name: 'Fashion', icon: <Shirt className="w-6 h-6 text-primary" />, href: '#' },
+    { name: 'Books & Hobbies', icon: <BookOpen className="w-6 h-6 text-primary" />, href: '#' },
+    { name: 'Pets', icon: <Dog className="w-6 h-6 text-primary" />, href: '#' },
+    { name: 'Services', icon: <Wrench className="w-6 h-6 text-primary" />, href: '#' },
     { name: 'Sell', icon: <PlusCircle className="w-6 h-6 text-primary" />, href: '/create-listing' },
 ];
 
