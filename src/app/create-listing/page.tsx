@@ -62,8 +62,8 @@ export default function CreateListingPage() {
 
 
   const phoneListingsCollection = useMemoFirebase(
-    () => user && firestore ? collection(firestore, 'users', user.uid, 'phoneListings') : null,
-    [firestore, user]
+    () => firestore ? collection(firestore, 'listings') : null,
+    [firestore]
   );
 
 
@@ -82,6 +82,11 @@ export default function CreateListingPage() {
         userId: user.uid,
         postDate: serverTimestamp(),
         imageUrls: [], // Placeholder for now
+        // A real app would get a real image URL here
+        imageUrl: `https://picsum.photos/seed/${Math.random()}/600/800`,
+        imageHint: "smartphone",
+        model: values.model, // Already in values
+        title: values.model, // Use model as title
     };
 
     addDocumentNonBlocking(phoneListingsCollection, newListing);
@@ -210,3 +215,5 @@ export default function CreateListingPage() {
     </div>
   );
 }
+
+    

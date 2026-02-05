@@ -1,12 +1,15 @@
+import type { Timestamp } from "firebase/firestore";
+
 export type PhoneListing = {
   id: string;
-  userId?: string;
+  userId: string;
   model: string;
   description: string;
   price: number;
   condition: 'New' | 'Used - Like New' | 'Used - Good' | 'Used - Fair';
   imageUrl: string;
   imageHint: string;
+  postDate: Timestamp;
 };
 
 export type Message = {
@@ -25,3 +28,5 @@ export type Conversation = {
   phoneModel: string;
   messages: Message[];
 };
+
+    

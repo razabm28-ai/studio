@@ -8,30 +8,56 @@ import { Slider } from '@/components/ui/slider';
 import PhoneCard from './phone-card';
 import { Search, X } from 'lucide-react';
 import { Button } from './ui/button';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
+import { Skeleton } from './ui/skeleton';
 
 const USD_TO_INR_RATE = 83.5;
 
-export default function Listings({ allListings }: { allListings: PhoneListing[] }) {
+function ListingsSkeleton() {
+    return (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, i) => (
+                <div key={i} className="space-y-4">
+                    <Skeleton className="aspect-[3/4] w-full rounded-lg" />
+                    <div className="space-y-2">
+                        <Skeleton className="h-5 w-3/4" />
+                        <Skeleton className="h-5 w-1/4" />
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+}
+
+export default function Listings() {
   const [isMounted, setIsMounted] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [condition, setCondition] = useState('all');
+
+  const firestore = useFirestore();
+  const listingsCollection = useMemoFirebase(() => firestore ? collection(firestore, 'listings') : null, [firestore]);
+  const { data: allListings, isLoading } = useCollection<PhoneListing>(listingsCollection);
   
-  const maxPriceUsd = useMemo(() => Math.max(...allListings.map(p => p.price), 0), [allListings]);
-  const maxPriceInr = useMemo(() => Math.ceil(maxPriceUsd * USD_TO_INR_RATE / 1000) * 1000, [maxPriceUsd]);
-  
-  const [priceInr, setPriceInr] = useState(maxPriceInr);
+  const maxPrice = useMemo(() => {
+    if (!allListings) return 100000;
+    const max = Math.max(...allListings.map(p => p.price), 0);
+    return Math.ceil(max / 1000) * 1000 || 100000;
+  }, [allListings]);
+
+  const [priceInr, setPriceInr] = useState(maxPrice);
   
   useEffect(() => {
     setIsMounted(true);
-    setPriceInr(maxPriceInr);
-  }, [maxPriceInr]);
+    setPriceInr(maxPrice);
+  }, [maxPrice]);
   
   const filteredListings = useMemo(() => {
-    const priceInUsd = priceInr / USD_TO_INR_RATE;
+    if (!allListings) return [];
     return allListings.filter(listing => {
       const searchMatch = listing.model.toLowerCase().includes(searchTerm.toLowerCase());
       const conditionMatch = condition === 'all' || listing.condition === condition;
-      const priceMatch = listing.price <= priceInUsd;
+      const priceMatch = listing.price <= priceInr;
       return searchMatch && conditionMatch && priceMatch;
     });
   }, [allListings, searchTerm, condition, priceInr]);
@@ -39,25 +65,13 @@ export default function Listings({ allListings }: { allListings: PhoneListing[] 
   const resetFilters = () => {
     setSearchTerm('');
     setCondition('all');
-    setPriceInr(maxPriceInr);
+    setPriceInr(maxPrice);
   };
   
   const conditions = ['all', 'New', 'Used - Like New', 'Used - Good', 'Used - Fair'];
 
-  if (!isMounted) {
-    return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-            {[...Array(8)].map((_, i) => (
-                <div key={i} className="space-y-4">
-                    <div className="aspect-[3/4] bg-muted rounded-lg animate-pulse" />
-                    <div className="space-y-2">
-                        <div className="h-5 bg-muted rounded w-3/4 animate-pulse" />
-                        <div className="h-5 bg-muted rounded w-1/4 animate-pulse" />
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
+  if (!isMounted || isLoading) {
+    return <ListingsSkeleton />;
   }
 
   return (
@@ -99,7 +113,7 @@ export default function Listings({ allListings }: { allListings: PhoneListing[] 
              </div>
             <Slider
               min={0}
-              max={maxPriceInr}
+              max={maxPrice}
               step={1000}
               value={[priceInr]}
               onValueChange={(value) => setPriceInr(value[0])}
@@ -129,3 +143,5 @@ export default function Listings({ allListings }: { allListings: PhoneListing[] 
     </div>
   );
 }
+
+    

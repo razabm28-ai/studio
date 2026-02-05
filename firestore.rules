@@ -1,32 +1,21 @@
 /**
- * Core Philosophy: This ruleset enforces a strict user-ownership model. All data is
- * considered private and is nested within a user-specific data tree. Access is
- * granted exclusively to the authenticated user whose ID matches the user ID in the
- * document path, ensuring strong data isolation between users.
+ * Core Philosophy: This ruleset enforces a strict user-ownership model for user-specific data,
+ * while allowing public readability for shared data like listings. Access is
+ * granted based on authentication status and path-based or field-based ownership checks.
  *
- * Data Structure: All application data is organized under the top-level `/users`
- * collection. Each user has a root document at `/users/{userId}`, with all of their
- * related data (listings, messages, etc.) stored in subcollections beneath it.
- * This structure is fundamental to the security model.
+ * Data Structure:
+ * - /users/{userId}: Private, user-specific data.
+ * - /listings/{listingId}: Publicly readable listing data, with write access restricted to the owner.
  *
  * Key Security Decisions:
  * - Default Deny: All paths are closed by default. Access is only granted by explicit `allow` statements.
  * - No User Listing: It is not possible for any client, authenticated or not, to list all user documents in the `/users` collection.
- * - Strict Ownership: A user can only access, modify, or delete data that exists under their own `/users/{userId}` path.
- * - No Public Data: There are no publicly readable collections. All reads require authentication and ownership verification.
+ * - Strict Ownership: A user can only access, modify, or delete data that exists under their own `/users/{userId}` path or where they are designated as the owner in a document field.
  *
- * Denormalization for Authorization: The security model relies on path-based
+ * Denormalization for Authorization: The security model relies on path-based and field-based
  * authorization. By placing a user's ID directly in the document path (e.g.,
- * `/users/{userId}/...`), we avoid slow and costly `get()` calls to other documents
- * for verification. This makes the rules fast, scalable, and secure. We also enforce
- * that documents contain a `userId` field that matches the path, ensuring relational
- * integrity is maintained from the moment of creation.
- *
- * Structural Segregation: The entire data model is built on structural segregation.
- * By nesting all user-specific data in subcollections under `/users/{userId}`, we
- * guarantee that queries (`list` operations) are naturally and securely scoped. A
- * client can only query collections within their own data tree, preventing any
- * possibility of data leakage from other users.
+ * `/users/{userId}/...`) or in a `userId` field, we avoid slow and costly `get()` calls to other documents
+ * for verification. This makes the rules fast, scalable, and secure.
  */
 rules_version = '2';
 service cloud.firestore {
@@ -44,21 +33,46 @@ service cloud.firestore {
     }
 
     /**
-     * Returns true if the signed-in user's UID matches the provided userId.
-     * This is the primary function for verifying document ownership.
+     * Returns true if the signed-in user's UID matches the provided userId from the path.
+     * This is the primary function for verifying document ownership in user-nested collections.
      */
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
     /**
-     * Returns true if a document exists and the user is the owner.
+     * Returns true if a document exists and the user is the owner via path.
      * CRITICAL: Used for all update and delete operations to prevent modifying
-     * or deleting non-existent documents.
+     * or deleting non-existent documents in user-nested collections.
      */
     function isExistingOwner(userId) {
       return isOwner(userId) && resource != null;
     }
+
+    /**
+     * Validates that the user ID in a document's data matches the
+     * authenticated user's UID on creation. Used for resources not nested under a user path.
+     */
+    function isResourceOwnerOnCreate() {
+      return isSignedIn() && request.auth.uid == request.resource.data.userId;
+    }
+
+    /**
+     * Returns true if the requesting user's UID matches the 'userId' field
+     * on an *existing* document. Used for update/delete on non-nested resources.
+     */
+    function isExistingResourceOwner() {
+      return isSignedIn() && resource != null && request.auth.uid == resource.data.userId;
+    }
+
+    /**
+     * Enforces immutability of the ownership field (`userId`) on update.
+     * Prevents re-assigning a document to a different user.
+     */
+    function isOwnerFieldImmutable() {
+      return request.resource.data.userId == resource.data.userId;
+    }
+
 
     /**
      * Validates required relational fields for a new User document.
@@ -82,14 +96,6 @@ service cloud.firestore {
      */
     function hasValidOwnerFieldOnCreate(userId) {
       return request.resource.data.userId == userId;
-    }
-    
-    /**
-     * Enforces immutability of the ownership field (`userId`) on update.
-     * Prevents re-assigning a document to a different user.
-     */
-    function isOwnerFieldImmutable() {
-      return request.resource.data.userId == resource.data.userId;
     }
 
     /**
@@ -132,18 +138,19 @@ service cloud.firestore {
     }
 
     /**
-     * @description Manages phone listings created by a user.
-     * @path /users/{userId}/phoneListings/{phoneListingId}
-     * @allow (create) An authenticated user creating a new phone listing for themselves.
-     * @allow (get, list, update, delete) The owner managing their own collection of listings.
-     * @deny (create, update, delete) A user attempting to modify another user's listings.
-     * @principle Restricts all access to a user's own private subcollection.
+     * @description Manages all public phone listings.
+     * @path /listings/{listingId}
+     * @allow (get, list) Anyone can view all listings.
+     * @allow (create) Any authenticated user can create a listing, ensuring they set their own UID as the owner.
+     * @allow (update) Only the owner of a listing can modify it.
+     * @allow (delete) Only the owner of a listing can delete it.
+     * @principle Enables a public marketplace while maintaining strict ownership for write operations.
      */
-    match /users/{userId}/phoneListings/{phoneListingId} {
-      allow get, list: if isOwner(userId);
-      allow create: if isOwner(userId) && hasValidOwnerFieldOnCreate(userId);
-      allow update: if isExistingOwner(userId) && isOwnerFieldImmutable();
-      allow delete: if isExistingOwner(userId);
+    match /listings/{listingId} {
+      allow get, list: if true;
+      allow create: if isResourceOwnerOnCreate();
+      allow update: if isExistingResourceOwner() && isOwnerFieldImmutable();
+      allow delete: if isExistingResourceOwner();
     }
 
     /**
@@ -192,3 +199,5 @@ service cloud.firestore {
     }
   }
 }
+
+    

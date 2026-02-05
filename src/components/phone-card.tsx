@@ -4,14 +4,17 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
+import { useUser } from '@/firebase';
 
 type PhoneCardProps = {
   listing: PhoneListing;
 };
 
 export default function PhoneCard({ listing }: PhoneCardProps) {
-  const USD_TO_INR_RATE = 83.5;
-  const priceInRupees = Math.round(listing.price * USD_TO_INR_RATE);
+  const { user } = useUser();
+  const priceInRupees = listing.price; // Assuming price is already in INR
+
+  const isOwner = user?.uid === listing.userId;
 
   return (
     <Card className="flex flex-col h-full overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
@@ -44,11 +47,20 @@ export default function PhoneCard({ listing }: PhoneCardProps) {
           </p>
         </CardContent>
         <CardFooter className="p-0 pt-2 mt-auto">
-          <Button asChild className="w-full">
-            <Link href={`/messages?listing=${listing.id}`}>Message Seller</Link>
-          </Button>
+          {!isOwner && (
+            <Button asChild className="w-full">
+              <Link href={`/messages?listing=${listing.id}`}>Message Seller</Link>
+            </Button>
+          )}
+           {isOwner && (
+            <Button variant="outline" disabled className="w-full">
+              This is your listing
+            </Button>
+          )}
         </CardFooter>
       </div>
     </Card>
   );
 }
+
+    

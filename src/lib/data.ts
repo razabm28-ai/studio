@@ -1,79 +1,7 @@
-import type { PhoneListing, Conversation } from '@/lib/types';
+import type { Conversation } from '@/lib/types';
 
-export const phoneListings: PhoneListing[] = [
-  {
-    id: '1',
-    model: 'Galaxy Nova 12',
-    description: 'Barely used, comes with original box and accessories. No scratches or dents. 256GB storage.',
-    price: 850,
-    condition: 'Used - Like New',
-    imageUrl: 'https://picsum.photos/seed/phone1/600/800',
-    imageHint: 'smartphone screen'
-  },
-  {
-    id: '2',
-    model: 'PixelShift 8 Pro',
-    description: 'Brand new, sealed in box. Unwanted gift. 128GB model in Obsidian Black.',
-    price: 999,
-    condition: 'New',
-    imageUrl: 'https://picsum.photos/seed/phone2/600/800',
-    imageHint: 'smartphone table'
-  },
-  {
-    id: '3',
-    model: 'iFruit 14 Max',
-    description: 'Used for one year. Has minor scuffs on the corner but screen is pristine. Battery health at 92%.',
-    price: 650,
-    condition: 'Used - Good',
-    imageUrl: 'https://picsum.photos/seed/phone3/600/800',
-    imageHint: 'smartphone hand'
-  },
-  {
-    id: '4',
-    model: 'OneMinus 11T',
-    description: 'Good condition, works perfectly. Screen has some micro-scratches, not visible when on. 512GB.',
-    price: 450,
-    condition: 'Used - Good',
-    imageUrl: 'https://picsum.photos/seed/phone4/600/800',
-    imageHint: 'smartphone camera'
-  },
-  {
-    id: '5',
-    model: 'Xenon Zenfone X',
-    description: 'For parts or repair. Does not turn on. Screen is cracked. Sold as-is.',
-    price: 50,
-    condition: 'Used - Fair',
-    imageUrl: 'https://picsum.photos/seed/phone5/600/800',
-    imageHint: 'smartphones'
-  },
-  {
-    id: '6',
-    model: 'iFruit 15 Pro',
-    description: 'Newest model, pristine condition. Used for 2 weeks. 256GB in Natural Titanium.',
-    price: 1100,
-    condition: 'Used - Like New',
-    imageUrl: 'https://picsum.photos/seed/phone6/600/800',
-    imageHint: 'white smartphone'
-  },
-  {
-    id: '7',
-    model: 'Galaxy Nova 11',
-    description: 'A reliable phone that has served me well. Some visible wear and tear, but fully functional.',
-    price: 320,
-    condition: 'Used - Fair',
-    imageUrl: 'https://picsum.photos/seed/phone7/600/800',
-    imageHint: 'black smartphone'
-  },
-  {
-    id: '8',
-    model: 'PixelShift 7a',
-    description: 'Excellent budget phone. Bought 6 months ago, in great shape. Comes with a case.',
-    price: 350,
-    condition: 'Used - Good',
-    imageUrl: 'https://picsum.photos/seed/phone8/600/800',
-    imageHint: 'smartphone charging'
-  },
-];
+// This file now only contains mock data for conversations, which will be replaced soon.
+// Phone listings are now fetched directly from the database.
 
 export const conversations: Conversation[] = [
   {
@@ -113,3 +41,5 @@ export const conversations: Conversation[] = [
     ],
   },
 ];
+
+    

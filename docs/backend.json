@@ -251,20 +251,16 @@
         }
       },
       {
-        "path": "/users/{userId}/phoneListings/{phoneListingId}",
+        "path": "/listings/{listingId}",
         "definition": {
           "entityName": "PhoneListing",
           "schema": {
             "$ref": "#/backend/entities/PhoneListing"
           },
-          "description": "Stores phone listings created by users. Path-based ownership to ensure only the user can manage their listings.",
+          "description": "Public collection of all phone listings. Readable by everyone, writable only by the listing owner.",
           "params": [
             {
-              "name": "userId",
-              "description": "The unique identifier of the user."
-            },
-            {
-              "name": "phoneListingId",
+              "name": "listingId",
               "description": "The unique identifier of the phone listing."
             }
           ]
@@ -331,6 +327,7 @@
         }
       }
     ],
-    "reasoning": "The Firestore structure is designed to support the PhoneSwap application's core features, emphasizing security, scalability, and ease of maintenance. It prioritizes authorization independence by denormalizing relevant authorization data, avoiding the need for `get()` calls in security rules. \n\n*   **Users (Private Data):** User data is stored under `/users/{userId}`, providing path-based ownership and clear access control. This segregation allows rules to easily validate that only the user can access their own data.\n*   **Phone Listings (User-Owned):** Phone listings are stored under `/users/{userId}/phoneListings/{phoneListingId}`, establishing a clear ownership hierarchy. This structure facilitates simple security rules based on the user ID.\n*   **Messages (User-Owned):** Messages are stored under `/users/{userId}/messages/{messageId}`, also following the path-based ownership pattern.  This makes it straightforward to ensure that only the sender or receiver can access a given message.\n*   **Search Filters (User-Owned):** Search filters are stored under `/users/{userId}/searchFilters/{searchFilterId}`, maintaining the consistent ownership model.\n*   **Recommendations (User-Owned):** Recommendations are stored under `/users/{userId}/recommendations/{recommendationId}`.  This enables personalized recommendation lists for each user.\n\nThis structure achieves Authorization Independence by avoiding hierarchical authorization dependencies.  Each document's access control is determined solely by its path and the user's authentication status (`request.auth.uid`), eliminating the need for `get()` calls in security rules and supporting atomic operations.\n\nIt supports the required QAPs (Rules are not Filters) through structural segregation. The separation of user-owned data into distinct collections under `/users/{userId}` allows for secure `list` operations, as rules can easily filter based on the user ID without compromising security."
+    "reasoning": "The Firestore structure is designed to support the PhoneSwap application's core features, emphasizing security, scalability, and ease of maintenance. It prioritizes authorization independence by denormalizing relevant authorization data, avoiding the need for `get()` calls in security rules. \n\n*   **Users (Private Data):** User data is stored under `/users/{userId}`, providing path-based ownership and clear access control. This segregation allows rules to easily validate that only the user can access their own data.\n*   **Listings (Public):** Phone listings are stored in a top-level `/listings` collection, making them publicly readable by all users. Write access (create, update, delete) is restricted to the listing owner via the `userId` field within the document, ensuring data integrity.\n*   **Messages (User-Owned):** Messages are stored under `/users/{userId}/messages/{messageId}`, also following the path-based ownership pattern.  This makes it straightforward to ensure that only the sender or receiver can access a given message.\n*   **Search Filters (User-Owned):** Search filters are stored under `/users/{userId}/searchFilters/{searchFilterId}`, maintaining the consistent ownership model.\n*   **Recommendations (User-Owned):** Recommendations are stored under `/users/{userId}/recommendations/{recommendationId}`.  This enables personalized recommendation lists for each user.\n\nThis structure achieves Authorization Independence by avoiding hierarchical authorization dependencies.  Each document's access control is determined solely by its path and the user's authentication status (`request.auth.uid`), eliminating the need for `get()` calls in security rules and supporting atomic operations.\n\nIt supports the required QAPs (Rules are not Filters) through structural segregation. The separation of user-owned data into distinct collections under `/users/{userId}` allows for secure `list` operations, as rules can easily filter based on the user ID without compromising security."
   }
 }
+    
