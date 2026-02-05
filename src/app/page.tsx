@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Listings from '@/components/listings';
 import { Suspense } from 'react';
@@ -23,7 +24,7 @@ function ListingsSkeleton() {
 
 const categories = [
     { name: 'Home', icon: <HomeIcon className="w-6 h-6 text-primary" />, href: '#' },
-    { name: 'Mobile', icon: <Smartphone className="w-6 h-6 text-primary" />, href: '#' },
+    { name: 'Mobile', icon: <Smartphone className="w-6 h-6 text-primary" />, href: '/create-listing' },
     { name: 'Electronics', icon: <Cpu className="w-6 h-6 text-primary" />, href: '#' },
     { name: 'Cars', icon: <Car className="w-6 h-6 text-primary" />, href: '#' },
     { name: 'Bikes', icon: <Bike className="w-6 h-6 text-primary" />, href: '#' },
