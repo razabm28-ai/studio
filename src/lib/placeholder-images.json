@@ -1,3 +1,52 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "phone1",
+      "description": "A modern smartphone with a large screen.",
+      "imageUrl": "https://images.unsplash.com/photo-1631115539462-61c21920cbf9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxzbWFydHBob25lJTIwc2NyZWVufGVufDB8fHx8MTc3MDI2NDQ1OXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "smartphone screen"
+    },
+    {
+      "id": "phone2",
+      "description": "A sleek smartphone lying on a wooden table.",
+      "imageUrl": "https://images.unsplash.com/photo-1758095291814-e2fbdf383c95?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzbWFydHBob25lJTIwdGFibGV8ZW58MHx8fHwxNzcwMjc4ODY2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "smartphone table"
+    },
+    {
+      "id": "phone3",
+      "description": "A person holding a new smartphone.",
+      "imageUrl": "https://images.unsplash.com/photo-1637094411262-3d6072496372?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxzbWFydHBob25lJTIwaGFuZHxlbnwwfHx8fDE3NzAyODM1MzB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "smartphone hand"
+    },
+    {
+      "id": "phone4",
+      "description": "Close up of a smartphone camera.",
+      "imageUrl": "https://images.unsplash.com/photo-1608547492989-e91bab9ce286?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzbWFydHBob25lJTIwY2FtZXJhfGVufDB8fHx8MTc3MDI5MzU5OXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "smartphone camera"
+    },
+    {
+      "id": "phone5",
+      "description": "Multiple smartphones displayed in a store.",
+      "imageUrl": "https://images.unsplash.com/photo-1598826867442-9ef9e2527b1e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxzbWFydHBob25lc3xlbnwwfHx8fDE3NzAyMDg0MjR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "smartphones"
+    },
+    {
+      "id": "phone6",
+      "description": "A white smartphone on a minimalist background.",
+      "imageUrl": "https://images.unsplash.com/photo-1595420503920-69ea1c8341e0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHx3aGl0ZSUyMHNtYXJ0cGhvbmV8ZW58MHx8fHwxNzcwMjkzNTk5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "white smartphone"
+    },
+    {
+      "id": "phone7",
+      "description": "A black smartphone with a vibrant display.",
+      "imageUrl": "https://images.unsplash.com/photo-1598346653904-eae967ef4cc5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxibGFjayUyMHNtYXJ0cGhvbmV8ZW58MHx8fHwxNzcwMjkzNTk5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "black smartphone"
+    },
+    {
+      "id": "phone8",
+      "description": "A smartphone being charged.",
+      "imageUrl": "https://images.unsplash.com/photo-1732194516739-9325055c35de?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxzbWFydHBob25lJTIwY2hhcmdpbmd8ZW58MHx8fHwxNzcwMjkzNTk5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "smartphone charging"
+    }
+  ]
 }
