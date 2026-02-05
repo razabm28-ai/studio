@@ -9,32 +9,37 @@ import PhoneCard from './phone-card';
 import { Search, X } from 'lucide-react';
 import { Button } from './ui/button';
 
+const USD_TO_INR_RATE = 83.5;
+
 export default function Listings({ allListings }: { allListings: PhoneListing[] }) {
   const [isMounted, setIsMounted] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [condition, setCondition] = useState('all');
   
-  const maxPrice = useMemo(() => Math.ceil(Math.max(...allListings.map(p => p.price), 100) / 10) * 10, [allListings]);
-  const [price, setPrice] = useState(maxPrice);
-
+  const maxPriceUsd = useMemo(() => Math.max(...allListings.map(p => p.price), 0), [allListings]);
+  const maxPriceInr = useMemo(() => Math.ceil(maxPriceUsd * USD_TO_INR_RATE / 1000) * 1000, [maxPriceUsd]);
+  
+  const [priceInr, setPriceInr] = useState(maxPriceInr);
+  
   useEffect(() => {
     setIsMounted(true);
-    setPrice(maxPrice);
-  }, [maxPrice]);
-
+    setPriceInr(maxPriceInr);
+  }, [maxPriceInr]);
+  
   const filteredListings = useMemo(() => {
+    const priceInUsd = priceInr / USD_TO_INR_RATE;
     return allListings.filter(listing => {
       const searchMatch = listing.model.toLowerCase().includes(searchTerm.toLowerCase());
       const conditionMatch = condition === 'all' || listing.condition === condition;
-      const priceMatch = listing.price <= price;
+      const priceMatch = listing.price <= priceInUsd;
       return searchMatch && conditionMatch && priceMatch;
     });
-  }, [allListings, searchTerm, condition, price]);
+  }, [allListings, searchTerm, condition, priceInr]);
 
   const resetFilters = () => {
     setSearchTerm('');
     setCondition('all');
-    setPrice(maxPrice);
+    setPriceInr(maxPriceInr);
   };
   
   const conditions = ['all', 'New', 'Used - Like New', 'Used - Good', 'Used - Fair'];
@@ -88,14 +93,16 @@ export default function Listings({ allListings }: { allListings: PhoneListing[] 
           <div className="md:col-span-2 lg:col-span-3 mt-4">
              <div className="flex justify-between mb-2">
                  <label className="text-sm font-medium">Max Price</label>
-                 <span className="text-sm font-medium text-primary">${price}</span>
+                 <span className="text-sm font-medium text-primary">
+                    {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 }).format(priceInr)}
+                 </span>
              </div>
             <Slider
               min={0}
-              max={maxPrice}
-              step={10}
-              value={[price]}
-              onValueChange={(value) => setPrice(value[0])}
+              max={maxPriceInr}
+              step={1000}
+              value={[priceInr]}
+              onValueChange={(value) => setPriceInr(value[0])}
             />
           </div>
 

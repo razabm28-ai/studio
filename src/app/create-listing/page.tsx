@@ -110,9 +110,9 @@ export default function CreateListingPage() {
                   <FormItem>
                     <FormLabel>Price</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="e.g., 850" {...field} />
+                      <Input type="number" placeholder="e.g., 70000" {...field} />
                     </FormControl>
-                    <FormDescription>Enter price in USD.</FormDescription>
+                    <FormDescription>Enter price in INR (₹).</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
